@@ -182,8 +182,10 @@ class ConversationViewModel(val app: Application) : AndroidViewModel(app) {
                 llamaSession.addMessage(message.content)
 
                 val callback = object: LlamaGenerationCallback {
-                    override fun newString(newString: ByteArray) {
-                        var string = String(newString, Charsets.UTF_8)
+                    var responseByteArray = ByteArray(0)
+                    override fun newTokens(newTokens: ByteArray) {
+                        responseByteArray += newTokens
+                        var string = String(responseByteArray, Charsets.UTF_8)
                         for (suffix in antiPrompt ?: emptyArray()) {
                             string = string.removeSuffix(suffix)
                             string = string.removeSuffix(suffix + "\n")

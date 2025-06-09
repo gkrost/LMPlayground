@@ -179,8 +179,6 @@ int LlamaGenerationSession::generate(const ResponseCallback& callback) {
 
     // is it an end of generation?
     if (llama_vocab_is_eog(vocab, last_token)) {
-        callback(response);
-
         // add the response to the messages
         messages->push_back({"assistant", strdup(response.c_str())});
         prev_len = llama_chat_apply_template(tmpl, messages->data(), messages->size(), false, nullptr, 0);
@@ -200,9 +198,7 @@ int LlamaGenerationSession::generate(const ResponseCallback& callback) {
     std::string piece(buf, n);
     response += piece;
 
-    if (is_valid_utf8(response.c_str())) {
-        callback(response.c_str());
-    }
+    callback(piece.c_str());
 
     // prepare the next batch with the sampled token
     batch = llama_batch_get_one(&last_token, 1);

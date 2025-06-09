@@ -86,7 +86,8 @@ Java_com_druk_llamacpp_LlamaCpp_loadModel(JNIEnv *env,
 
     auto* model = new LlamaModel();
     CallbackContext ctx = {env, progressCallback};
-    model->loadModel(env->GetStringUTFChars(modelPath, nullptr),
+    const char* utfModelPath = env->GetStringUTFChars(modelPath, nullptr);
+    model->loadModel(utfModelPath,
                      -1,
                      [](float progress, void *ctx) -> bool {
                             auto* context = static_cast<CallbackContext*>(ctx);
@@ -97,6 +98,7 @@ Java_com_druk_llamacpp_LlamaCpp_loadModel(JNIEnv *env,
                      },
                      &ctx
                      );
+    env->ReleaseStringUTFChars(modelPath, utfModelPath);
     jclass clazz = env->FindClass("com/druk/llamacpp/LlamaModel");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject obj = env->NewObject(clazz, constructor);
@@ -151,15 +153,15 @@ extern "C" JNIEXPORT jint JNICALL Java_com_druk_llamacpp_LlamaGenerationSession_
     auto *session = (LlamaGenerationSession*)env->GetLongField(obj, fid);
 
     jclass javaClass = env->FindClass("com/druk/llamacpp/LlamaGenerationCallback");
-    jmethodID newStringMethodId = env->GetMethodID(javaClass, "newString", "([B)V");
+    jmethodID newTokensMethodId = env->GetMethodID(javaClass, "newTokens", "([B)V");
 
     return session->generate(
-            [env, newStringMethodId, callback](const std::string &response) {
+            [env, newTokensMethodId, callback](const std::string &response) {
                 const char *cStr = response.c_str();
                 jsize len = strlen(cStr);
                 jbyteArray result = env->NewByteArray(len);
                 env->SetByteArrayRegion(result, 0, len, (jbyte *) cStr);
-                env->CallVoidMethod(callback, newStringMethodId, result);
+                env->CallVoidMethod(callback, newTokensMethodId, result);
                 env->DeleteLocalRef(result);
             }
     );
@@ -174,7 +176,9 @@ Java_com_druk_llamacpp_LlamaGenerationSession_addMessage(JNIEnv *env,
     jfieldID fid = env->GetFieldID(clazz, "nativeHandle", "J");
     auto *session = (LlamaGenerationSession*)env->GetLongField(thiz, fid);
 
-    session->addMessage(env->GetStringUTFChars(message, nullptr));
+    const char* utfMessage = env->GetStringUTFChars(message, nullptr);
+    session->addMessage(utfMessage);
+    env->ReleaseStringUTFChars(message, utfMessage);
 }
 
 extern "C"
