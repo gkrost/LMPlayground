@@ -86,6 +86,19 @@ android {
         }
     }
 
+    testOptions {
+        managedDevices {
+            allDevices {
+                maybeCreate<ManagedVirtualDevice>("mvdApi35").apply {
+                    device = "Pixel"
+                    apiLevel = 35
+                    systemImageSource = "google"
+                    require64Bit = true
+                }
+            }
+        }
+    }
+
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
