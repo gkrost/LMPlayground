@@ -20,6 +20,13 @@ class LlamaCpp {
     external fun init(): Int
 
     /**
+     * Generate system information about the llama.cpp environment.
+     *
+     * @return A string containing system information.
+     */
+    external fun systemInfo(): String
+
+    /**
      * Loads a pre-trained LLM model from the specified file path.
      *
      * @param path The path to the model file on disk.
