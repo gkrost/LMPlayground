@@ -25,25 +25,5 @@ jobs:
         cache: 'gradle'
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
-    - name: Install Android Emulator
-      run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "emulator"
-    - name: Install Android Emulator image
-      run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-33;google_apis;x86_64"
-    - name: Create Android Emulator
-      run: $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n ci-test -k "system-images;android-33;google_apis;x86_64" -d "pixel" --force
-    - name: Start ADB server
-      run: adb start-server
-    - name: Start Android Emulator
-      run: $ANDROID_HOME/emulator/emulator -no-window -avd ci-test -noaudio > /dev/null &
     - name: Run connected android tests
-      run: |
-        adb wait-for-device;
-        ./gradlew app:cAT
-    - name: Publish Report
-      uses: mikepenz/action-junit-report@v3
-      if: success() || failure() # always run even if the previous step fails
-      with:
-        report_paths: app/build/outputs/androidTest-results/connected/**/*.xml
-        check_name: AndroidTestReport
-        detailed_summary: true
-        include_passed: true
+      run: ./gradlew app:mvdApi35Check
