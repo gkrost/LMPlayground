@@ -11,6 +11,7 @@ data class ModelInfo(
     val inputPrefix: String? = null,
     val inputSuffix: String? = null,
     val antiPrompt: Array<String> = emptyArray(),
+    val obsolete: Boolean = false,
     val description: String
 ) {
     override fun equals(other: Any?): Boolean {

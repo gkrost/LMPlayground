@@ -93,10 +93,15 @@ void LlamaGenerationSession::init(llama_model *model) {
 
     vocab = llama_model_get_vocab(model);
 
+    int n_threads = std::max(1, std::min(8, (int) sysconf(_SC_NPROCESSORS_ONLN) - 2));
+    LOGi("Using %d threads", n_threads);
+
     // initialize the context
     llama_context_params ctx_params = llama_context_default_params();
     ctx_params.n_ctx = 2048;
     ctx_params.n_batch = 2048;
+    ctx_params.n_threads       = n_threads;
+    ctx_params.n_threads_batch = n_threads;
 
     ctx = llama_init_from_model(model, ctx_params);
     if (!ctx) {
@@ -104,8 +109,12 @@ void LlamaGenerationSession::init(llama_model *model) {
         return;
     }
 
+    auto smplParams = llama_sampler_chain_default_params();
+    smplParams.no_perf = true; // disable performance tracking for the sampler
+
     // initialize the sampler
-    smpl = llama_sampler_chain_init(llama_sampler_chain_default_params());
+    smpl = llama_sampler_chain_init(smplParams);
+    llama_sampler_chain_add(smpl, llama_sampler_init_greedy());
     llama_sampler_chain_add(smpl, llama_sampler_init_min_p(0.05f, 1));
     llama_sampler_chain_add(smpl, llama_sampler_init_temp(0.8f));
     llama_sampler_chain_add(smpl, llama_sampler_init_dist(LLAMA_DEFAULT_SEED));
