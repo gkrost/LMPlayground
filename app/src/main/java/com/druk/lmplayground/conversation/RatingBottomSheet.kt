@@ -51,8 +51,7 @@ fun RatingBottomSheet(onDismiss: () -> Unit) {
                     label = { Text(text = label) },
                     leadingIcon = if (options[index]) {
                         { Icon(Icons.Default.Check, contentDescription = null) }
-                    } else null,
-                    modifier = Modifier.padding(vertical = 4.dp)
+                    } else null
                 )
             }
             Button(

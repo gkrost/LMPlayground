@@ -83,26 +83,32 @@ fun ChatItemBubble(
         if (!isUserMe) {
             Spacer(modifier = Modifier.height(4.dp))
             Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 IconButton(onClick = {
                     clipboardManager.setText(AnnotatedString(message.content))
                 }) {
                     Icon(
                         imageVector = Icons.Outlined.ContentCopy,
-                        contentDescription = stringResource(id = R.string.copy)
+                        contentDescription = stringResource(id = R.string.copy),
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.secondary
                     )
                 }
                 IconButton(onClick = { /* upvote - no-op */ }) {
                     Icon(
                         imageVector = Icons.Outlined.ThumbUp,
-                        contentDescription = stringResource(id = R.string.upvote)
+                        contentDescription = stringResource(id = R.string.upvote),
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.secondary
                     )
                 }
                 IconButton(onClick = { showRatingSheet = true }) {
                     Icon(
                         imageVector = Icons.Outlined.ThumbDown,
-                        contentDescription = stringResource(id = R.string.downvote)
+                        contentDescription = stringResource(id = R.string.downvote),
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.secondary
                     )
                 }
             }

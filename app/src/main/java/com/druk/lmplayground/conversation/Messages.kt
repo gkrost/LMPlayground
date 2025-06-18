@@ -37,7 +37,6 @@ fun Messages(
             piningBottom = false
         })
     }) {
-        val authorMe = stringResource(id = R.string.author_me)
         LazyColumn(
             state = scrollState,
             modifier = Modifier.fillMaxSize()
@@ -48,7 +47,7 @@ fun Messages(
                     Message(
                         onAuthorClick = { name -> navigateToProfile(name) },
                         msg = content,
-                        isUserMe = content.author == authorMe,
+                        isUserMe = content.author == "User",
                         isFirstMessageByAuthor = true,
                         isLastMessageByAuthor = true
                     )
