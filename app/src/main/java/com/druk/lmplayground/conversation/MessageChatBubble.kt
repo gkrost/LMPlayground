@@ -51,7 +51,10 @@ fun ChatItemBubble(
     val clipboardManager = LocalClipboardManager.current
 
     Column {
-        Surface {
+        Surface(
+            color = backgroundBubbleColor,
+            shape = ChatBubbleShape
+        ) {
             val styledMessage = messageFormatter(
                 text = message.content,
                 primary = isUserMe
