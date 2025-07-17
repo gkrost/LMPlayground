@@ -27,6 +27,16 @@ If you're just looking to install LM Playground, you can find it on Google Play.
 Prerequisites:
 * Android Studio: [Latest](https://developer.android.com/studio/releases)
 * NDK: 27.2.12479018+
+* Make sure the Android SDK is installed and set in `local.properties`:
+ ```
+  sdk.dir=/path/to/Android/sdk
+  ```
+  Replace `/path/to/Android/sdk` with the location of your SDK.
+  Use the command line tools to install the required NDK and accept the
+  licenses:
+  ```
+  sdkmanager "ndk;27.2.12479018" --licenses
+  ```
 
 1. Clone the repository:
 ```
