@@ -1,5 +1,5 @@
 //
-// Created by Andrew Druk on 22.01.2024.
+// Part of the LMPlayground project
 //
 
 #include <jni.h>
