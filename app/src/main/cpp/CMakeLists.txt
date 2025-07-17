@@ -5,12 +5,6 @@
 # Sets the minimum CMake version required for this project.
 cmake_minimum_required(VERSION 3.22.1)
 
-# Check if the target architecture is arm64-v8a
-if(${CMAKE_ANDROID_ARCH_ABI} STREQUAL "arm64-v8a")
-        # Set the C flags for arm64-v8a
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv8.4a+dotprod")
-endif()
-
 # include_directories(Vulkan-Hpp)
 add_subdirectory(llama.cpp)
 
@@ -39,14 +33,15 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         LlamaModel.cpp
         LlamaGenerationSession.cpp)
 
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/OpenCL-Headers)
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/clblast/include)
+# target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/OpenCL-Headers)
+# target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/clblast/include)
 
 # Specifies libraries CMake should link to your target library. You
 # can link libraries from various origins, such as libraries defined in this
 # build script, prebuilt third-party libraries, or Android system libraries.
 target_link_libraries(${CMAKE_PROJECT_NAME}
         # List libraries link to the target library
-        common llama
+        common
+        llama
         android
         log)

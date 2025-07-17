@@ -32,3 +32,5 @@ google-services.json
 *.hprof
 app/src/main/cpp/clblast
 app/release
+android-commandlinetools.zip
+~/

@@ -30,38 +30,25 @@
 #include <android/log.h>
 #include <fcntl.h>
 
-void LlamaModel::loadModel(const gpt_params& params_arg,
-                           const std::string &modelPath,
-                           std::string input_prefix,
-                           std::string input_suffix,
-                           std::vector<std::string> antiprompt,
-                           int32_t n_ctx,
+void LlamaModel::loadModel(const std::string &modelPath,
                            int32_t n_gpu_layers,
                            llama_progress_callback progress_callback,
                            void * progress_callback_user_data) {
-    params = params_arg;
-    params.interactive = true;
-    params.n_ctx = 2048;
-    params.interactive_first = true;
-    params.input_prefix = std::move(input_prefix);
-    params.input_suffix = std::move(input_suffix);
-    params.conversation = true;
-    params.model = modelPath;
-    params.n_gpu_layers = n_gpu_layers;
-    params.antiprompt = std::move(antiprompt);
 
-    auto modelParams = llama_model_params_from_gpt_params(params);
-    modelParams.progress_callback = progress_callback;
-    modelParams.progress_callback_user_data = progress_callback_user_data;
-    model = llama_load_model_from_file(params.model.c_str(), modelParams);
+    // initialize the model
+    llama_model_params model_params = llama_model_default_params();
+    // model_params.n_gpu_layers = n_gpu_layers;
+    model_params.progress_callback = progress_callback;
+    model_params.progress_callback_user_data = progress_callback_user_data;
+    model = llama_model_load_from_file(modelPath.c_str(), model_params);
     if (model == nullptr) {
-        LOG_ERR("%s: failed to load model '%s'\n", __func__, params.model.c_str());
+        LOG_ERR("%s: failed to load model '%s'\n", __func__, modelPath.c_str());
     }
 }
 
 LlamaGenerationSession* LlamaModel::createGenerationSession() {
     auto *session = new LlamaGenerationSession();
-    session->init(model, params);
+    session->init(model);
     return session;
 }
 
@@ -74,7 +61,7 @@ uint64_t LlamaModel::getModelSize() {
 
 void LlamaModel::unloadModel() {
     if (model != nullptr) {
-        llama_free_model(model);
+        llama_model_free(model);
         model = nullptr;
     }
 }

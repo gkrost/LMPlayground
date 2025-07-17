@@ -61,6 +61,7 @@ class ConversationFragment : Fragment() {
             val isGenerating by viewModel.isGenerating.observeAsState()
             val progress by viewModel.modelLoadingProgress.observeAsState(0f)
             val modelInfo by viewModel.loadedModel.observeAsState()
+            val isModelReady by viewModel.isModelReady.observeAsState(false)
             val models by viewModel.models.observeAsState(emptyList())
 
             PlaygroundTheme {
@@ -155,7 +156,7 @@ class ConversationFragment : Fragment() {
                             modifier = Modifier
                                 .navigationBarsPadding()
                                 .imePadding(),
-                            status = if (modelInfo == null)
+                            status = if (modelInfo == null || !isModelReady)
                                 UserInputStatus.NOT_LOADED
                             else if (isGenerating == true)
                                 UserInputStatus.GENERATING

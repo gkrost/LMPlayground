@@ -41,34 +41,31 @@ protected:
     }
 };
 
-gpt_params g_params;
-
-static void llama_log_callback_logTee(ggml_log_level level, const char * text, void * user_data) {
-    (void) level;
-    (void) user_data;
-    __android_log_print(ANDROID_LOG_INFO, "Llama", "%s", text);
+#define TAG "llama-android.cpp"
+static void log_callback(ggml_log_level level, const char * fmt, void * data) {
+    if (level == GGML_LOG_LEVEL_ERROR)     __android_log_print(ANDROID_LOG_ERROR, TAG, fmt, data);
+    else if (level == GGML_LOG_LEVEL_INFO) __android_log_print(ANDROID_LOG_INFO, TAG, fmt, data);
+    else if (level == GGML_LOG_LEVEL_WARN) __android_log_print(ANDROID_LOG_WARN, TAG, fmt, data);
+    else __android_log_print(ANDROID_LOG_DEFAULT, TAG, fmt, data);
 }
-
-gpt_params initLlamaCpp();
-int generate(gpt_params params,
-             llama_model *model,
-             llama_context * ctx_guidance,
-             JNIEnv *env,
-             jobject activity);
 
 extern "C" JNIEXPORT int
 JNICALL
-Java_com_druk_llamacpp_LlamaCpp_init(JNIEnv *env, jobject activity) {
+Java_com_druk_llamacpp_LlamaCpp_init(JNIEnv *env, jobject object) {
 
     // Redirect std::cerr to logcat
     AndroidLogBuf androidLogBuf;
     std::cerr.rdbuf(&androidLogBuf);
 
-    // Now, std::cerr outputs to logcat
-    // std::cerr << "This error message goes to logcat." << std::endl;
-
-    g_params = initLlamaCpp();
+    llama_log_set(log_callback, NULL);
+    llama_backend_init();
     return 0;
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_druk_llamacpp_LlamaCpp_systemInfo(JNIEnv *env, jobject object) {
+    return env->NewStringUTF(llama_print_system_info());
 }
 
 extern "C" JNIEXPORT jobject
@@ -87,24 +84,10 @@ Java_com_druk_llamacpp_LlamaCpp_loadModel(JNIEnv *env,
         jobject progressCallback;
     };
 
-    const char *inputPrefixCStr = env->GetStringUTFChars(inputPrefix, nullptr);
-    const char *inputSuffixCStr = env->GetStringUTFChars(inputSuffix, nullptr);
-    std::vector<std::string> antiprompt_vector = std::vector<std::string>();
-    jsize len = env->GetArrayLength(aniPrompt);
-    for (int i = 0; i < len; i++) {
-        jstring element = (jstring) env->GetObjectArrayElement(aniPrompt, i);
-        const char *antiprompt = env->GetStringUTFChars(element, nullptr);
-        antiprompt_vector.push_back(std::string(antiprompt));
-    }
-
     auto* model = new LlamaModel();
     CallbackContext ctx = {env, progressCallback};
-    model->loadModel(g_params,
-                     env->GetStringUTFChars(modelPath, nullptr),
-                     std::string(inputPrefixCStr),
-                     std::string(inputSuffixCStr),
-                     antiprompt_vector,
-                     2048,
+    const char* utfModelPath = env->GetStringUTFChars(modelPath, nullptr);
+    model->loadModel(utfModelPath,
                      -1,
                      [](float progress, void *ctx) -> bool {
                             auto* context = static_cast<CallbackContext*>(ctx);
@@ -115,6 +98,7 @@ Java_com_druk_llamacpp_LlamaCpp_loadModel(JNIEnv *env,
                      },
                      &ctx
                      );
+    env->ReleaseStringUTFChars(modelPath, utfModelPath);
     jclass clazz = env->FindClass("com/druk/llamacpp/LlamaModel");
     jmethodID constructor = env->GetMethodID(clazz, "<init>", "()V");
     jobject obj = env->NewObject(clazz, constructor);
@@ -192,7 +176,9 @@ Java_com_druk_llamacpp_LlamaGenerationSession_addMessage(JNIEnv *env,
     jfieldID fid = env->GetFieldID(clazz, "nativeHandle", "J");
     auto *session = (LlamaGenerationSession*)env->GetLongField(thiz, fid);
 
-    session->addMessage(env->GetStringUTFChars(message, nullptr));
+    const char* utfMessage = env->GetStringUTFChars(message, nullptr);
+    session->addMessage(utfMessage);
+    env->ReleaseStringUTFChars(message, utfMessage);
 }
 
 extern "C"
@@ -226,52 +212,4 @@ extern "C" JNIEXPORT void JNICALL Java_com_druk_llamacpp_LlamaGenerationSession_
         env->SetLongField(obj, fid, (long)nullptr);
         __android_log_print(ANDROID_LOG_DEBUG, "Llama", "Destroy");
     }
-}
-
-gpt_params initLlamaCpp() {
-    gpt_params params;
-
-#ifndef LOG_DISABLE_LOGS
-    LOG("Log start\n");
-    llama_log_set(llama_log_callback_logTee, nullptr);
-#endif // LOG_DISABLE_LOGS
-
-    gpt_init();
-
-    if (params.logits_all) {
-        printf("\n************\n");
-        printf("%s: please use the 'perplexity' tool for perplexity calculations\n", __func__);
-        printf("************\n\n");
-    }
-
-    if (params.embedding) {
-        printf("\n************\n");
-        printf("%s: please use the 'embedding' tool for embedding calculations\n", __func__);
-        printf("************\n\n");
-    }
-
-    if (params.n_ctx != 0 && params.n_ctx < 8) {
-        LOG("%s: warning: minimum context size is 8, using minimum size.\n", __func__);
-        params.n_ctx = 8;
-    }
-
-    if (params.rope_freq_base != 0.0) {
-        LOG("%s: warning: changing RoPE frequency base to %g.\n", __func__, params.rope_freq_base);
-    }
-
-    if (params.rope_freq_scale != 0.0) {
-        LOG("%s: warning: scaling RoPE frequency by %g.\n", __func__, params.rope_freq_scale);
-    }
-
-    LOG("%s: build = %d (%s)\n",      __func__, LLAMA_BUILD_NUMBER, LLAMA_COMMIT);
-    LOG("%s: built with %s for %s\n", __func__, LLAMA_COMPILER, LLAMA_BUILD_TARGET);
-
-    LOG("%s: llama backend init\n", __func__);
-    llama_backend_init();
-    llama_numa_init(params.numa);
-
-    params.cpuparams.n_threads = (int) sysconf(_SC_NPROCESSORS_ONLN);
-    params.cpuparams_batch.n_threads = (int) sysconf(_SC_NPROCESSORS_ONLN);
-
-    return params;
 }

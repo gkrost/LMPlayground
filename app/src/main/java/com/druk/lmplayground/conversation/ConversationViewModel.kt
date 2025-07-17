@@ -41,6 +41,7 @@ class ConversationViewModel(val app: Application) : AndroidViewModel(app) {
     private var llamaSession: LlamaGenerationSession? = null
     private var generatingJob: Job? = null
     private val _isGenerating = MutableLiveData(false)
+    private val _isModelReady = MutableLiveData(false)
     private val _modelLoadingProgress = MutableLiveData(0f)
     private val _loadedModel = MutableLiveData<ModelInfo?>(null)
     private val _models = MutableLiveData<List<ModelInfo>>(emptyList())
@@ -50,6 +51,7 @@ class ConversationViewModel(val app: Application) : AndroidViewModel(app) {
     }
 
     val isGenerating: LiveData<Boolean> = _isGenerating
+    val isModelReady: LiveData<Boolean> = _isModelReady
     val modelLoadingProgress: LiveData<Float> = _modelLoadingProgress
     val loadedModel: LiveData<ModelInfo?> = _loadedModel
     val models: LiveData<List<ModelInfo>> = _models
@@ -78,12 +80,14 @@ class ConversationViewModel(val app: Application) : AndroidViewModel(app) {
                     DownloadManager.STATUS_FAILED -> {
                         _loadedModel.postValue(null)
                         _modelLoadingProgress.postValue(0f)
+                        _isModelReady.postValue(false)
                     }
                 }
             }
             else {
                 _loadedModel.postValue(null)
                 _modelLoadingProgress.postValue(0f)
+                _isModelReady.postValue(false)
             }
             downloadModels.remove(id)
             if (downloadModels.isEmpty()) {
@@ -126,6 +130,7 @@ class ConversationViewModel(val app: Application) : AndroidViewModel(app) {
         val file = modelInfo.file ?: return
         val llamaCpp = llamaCpp ?: return
         _models.postValue(emptyList())
+        _isModelReady.postValue(false)
         viewModelScope.launch {
             withContext(Dispatchers.Default) {
                 _modelLoadingProgress.postValue(0f)
@@ -160,6 +165,7 @@ class ConversationViewModel(val app: Application) : AndroidViewModel(app) {
                         description = modelDescription
                     )
                 )
+                _isModelReady.postValue(true)
             }
         }
     }
@@ -222,6 +228,7 @@ class ConversationViewModel(val app: Application) : AndroidViewModel(app) {
                 llamaSession = null
                 llamaModel?.unloadModel()
                 _loadedModel.postValue(null)
+                _isModelReady.postValue(false)
             }
             else {
                 downloadModels.forEach { (id, model) ->
@@ -229,6 +236,7 @@ class ConversationViewModel(val app: Application) : AndroidViewModel(app) {
                         downloadManager.remove(id)
                     }
                 }
+                _isModelReady.postValue(false)
             }
             uiState.resetMessages()
         }
@@ -250,6 +258,7 @@ class ConversationViewModel(val app: Application) : AndroidViewModel(app) {
         )
         val downloadId = downloadManager.enqueue(request)
         downloadModels[downloadId] = model
+        _isModelReady.postValue(false)
         handler.post(runnable)
     }
 

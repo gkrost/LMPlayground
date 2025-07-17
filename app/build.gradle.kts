@@ -13,16 +13,16 @@ android {
         applicationId = "com.druk.lmplayground"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1_00_09
-        versionName = "1.0.9"
+        versionCode = 1_01_01
+        versionName = "1.1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
         externalNativeBuild {
             cmake {
-                // Disable Vulkan for macOS Emulator (It doesn't support Vulkan)
-//                arguments += "-DGGML_VULKAN=ON"
-//                cppFlags += "-I${rootDir}/app/src/main/cpp/Vulkan-Hpp/Vulkan-Headers/include"
+                arguments += "-DLLAMA_CURL=OFF"
+                arguments += "-DLLAMA_BUILD_COMMON=ON"
+                arguments += "-DGGML_LLAMAFILE=OFF"
                 cppFlags += "-std=c++11"
             }
         }
@@ -32,7 +32,7 @@ android {
         }
     }
 
-    ndkVersion = "26.2.11394342"
+    ndkVersion = "27.2.12479018"
 
     externalNativeBuild {
         cmake {
@@ -83,6 +83,19 @@ android {
             reset()
             include("arm64-v8a", "x86_64")
             isUniversalApk = true
+        }
+    }
+
+    testOptions {
+        managedDevices {
+            allDevices {
+                maybeCreate<ManagedVirtualDevice>("mvdApi35").apply {
+                    device = "Pixel"
+                    apiLevel = 35
+                    systemImageSource = "google"
+                    require64Bit = true
+                }
+            }
         }
     }
 
