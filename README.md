@@ -21,7 +21,7 @@ LM Playground is designed as a universal platform for experimenting with various
 * Google Gemma2 9B
 
 ## Install
-If you're just looking to install LM Playground, you can find it on [Google Play](https://play.google.com/store/apps/details?id=com.druk.lmplayground). If you're a developer wanting to contribute, read on.
+If you're just looking to install LM Playground, you can find it on Google Play. If you're a developer wanting to contribute, read on.
 
 ## Build Instructions
 Prerequisites:
@@ -30,7 +30,7 @@ Prerequisites:
 
 1. Clone the repository:
 ```
-git clone https://github.com/andriydruk/LMPlayground.git
+git clone https://github.com/gkrost/LMPlayground.git
 ```
 2. Open the project in Android Studio: `File` > `Open` > Select the cloned repository.
 3. Connect an Android device or start an emulator.
@@ -43,6 +43,6 @@ This project is licensed under the [MIT License](LICENSE).
 This project was built based on [llama.cpp](https://github.com/ggerganov/llama.cpp) project. The application uses GGUF-format models with Q4KM quantization from [Hugging Face](https://huggingface.co/).
 
 # Contact
-If you have any questions, suggestions, or issues, feel free to open an issue or contact me directly at [me@andriydruk.com](mailto:me@andriydruk.com).
+If you have any questions, suggestions, or issues, feel free to open an issue.
 
 
