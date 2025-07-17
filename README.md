@@ -25,8 +25,8 @@ If you're just looking to install LM Playground, you can find it on Google Play.
 
 ## Build Instructions
 Prerequisites:
-* Android Studio: [2024.1.1+](https://developer.android.com/studio/releases)
-* NDK: 27.2.12479018
+* Android Studio: [Latest](https://developer.android.com/studio/releases)
+* NDK: 27.2.12479018+
 
 1. Clone the repository:
 ```
