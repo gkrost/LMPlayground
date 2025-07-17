@@ -1,4 +1,6 @@
 import com.android.build.api.dsl.ManagedVirtualDevice
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     alias(libs.plugins.android.application)
@@ -94,8 +96,8 @@ android {
 
     testOptions {
         managedDevices {
-            allDevices {
-                maybeCreate<ManagedVirtualDevice>("mvdApi35").apply {
+            devices {
+                register<ManagedVirtualDevice>("mvdApi35") {
                     device = "Pixel"
                     apiLevel = 35
                     systemImageSource = "google"
@@ -111,9 +113,19 @@ android {
     }
 }
 
-// Add missing Material dependencies to resolve resource errors
+// Align Kotlin JVM target using compilerOptions DSL
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
+    }
+}
+
+// Dependencies for Material3, Compose3, and Navigation
 
 dependencies {
-    implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.compose.material3:material3:1.3.2")
+    implementation(libs.google.android.material)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.fragment.ktx.v260)
+    implementation(libs.androidx.navigation.ui.ktx.v260)
 }
+
