@@ -30,11 +30,11 @@ fun Messages(
     scrollState: LazyListState,
     modifier: Modifier = Modifier
 ) {
-    var piningBottom by remember { mutableStateOf(false) }
+    var pinningBottom by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     Box(modifier = modifier.pointerInput(Unit) {
         detectTapGestures(onPress = {
-            piningBottom = false
+            pinningBottom = false
         })
     }) {
         LazyColumn(
@@ -67,8 +67,8 @@ fun Messages(
         }
 
         // Auto scrolling to the latest item
-        LaunchedEffect(piningBottom, scrollState.canScrollForward) {
-            if (scrollState.canScrollForward && piningBottom) {
+        LaunchedEffect(pinningBottom, scrollState.canScrollForward) {
+            if (scrollState.canScrollForward && pinningBottom) {
                 scope.launch {
                     val totalItemsCount = scrollState.layoutInfo.totalItemsCount
                     scrollState.scrollToItem(totalItemsCount - 1)
@@ -83,7 +83,7 @@ fun Messages(
                 scope.launch {
                     val totalItemsCount = scrollState.layoutInfo.totalItemsCount
                     scrollState.animateScrollToItem(totalItemsCount - 1)
-                    piningBottom = true
+                    pinningBottom = true
                 }
             },
             modifier = Modifier.align(Alignment.BottomCenter)
