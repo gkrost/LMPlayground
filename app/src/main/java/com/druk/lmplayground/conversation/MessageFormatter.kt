@@ -66,10 +66,13 @@ fun messageFormatter(
                 primary = primary,
                 codeSnippetBackground = codeSnippetBackground
             )
+
+            val start = length
             append(annotatedString)
+            val end = length
 
             if (stringAnnotation != null) {
-                val (item, start, end, tag) = stringAnnotation
+                val (item, _s, _e, tag) = stringAnnotation
                 addStringAnnotation(tag = tag, start = start, end = end, annotation = item)
             }
 
