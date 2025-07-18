@@ -147,9 +147,16 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx.v260)
     implementation(libs.androidx.navigation.ui.ktx.v260)
 
+    // 1. Use the BOM the right way (platform(...) or enforcedPlatform(...))
+    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.bom)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.materialWindow)
-}
 
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    debugImplementation("androidx.compose.ui:ui-tooling")        // only needed in debug
+    implementation("androidx.compose.ui:ui-viewbinding")
+    implementation("androidx.compose.runtime:runtime-livedata")
+}
