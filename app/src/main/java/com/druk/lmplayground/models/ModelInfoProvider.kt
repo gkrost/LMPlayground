@@ -2,12 +2,14 @@ package com.druk.lmplayground.models
 
 import android.net.Uri
 import android.os.Environment
+import java.io.File
 
 object ModelInfoProvider {
 
-    fun buildModelList(): List<ModelInfo> {
-        val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        val files = path.listFiles()
+    fun buildModelList(downloadsDir: File =
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+    ): List<ModelInfo> {
+        val files = downloadsDir.listFiles()
         return listOf(
             ModelInfo(
                 name = "Qwen 3 0.6B",
@@ -187,7 +189,7 @@ object ModelInfoProvider {
                 // Otherwise, we show it
                 true
             }
-        }
+        }.sortedBy { it.name }
     }
 
 }
