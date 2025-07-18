@@ -159,4 +159,16 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")        // only needed in debug
     implementation("androidx.compose.ui:ui-viewbinding")
     implementation("androidx.compose.runtime:runtime-livedata")
+
+    // Unit‑test support
+    testImplementation("junit:junit:4.13.2")
+
+    // Compose + AndroidX instrumentation test stack
+    androidTestImplementation(platform("androidx.compose:compose-bom:1.8.3")) // latest stable :contentReference[oaicite:0]{index=0}
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")            // provides createAndroidComposeRule
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    // Manifest stub so Compose previews & test‑manifest resolve correctly
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
