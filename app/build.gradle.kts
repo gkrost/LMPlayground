@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("org.jetbrains.kotlin.plugin.compose") version "2.2.0"
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
@@ -36,6 +36,10 @@ android {
     }
 
     ndkVersion = "27.2.12479018"
+
+    buildFeatures {
+        compose = true
+    }
 
     externalNativeBuild {
         cmake {
@@ -81,9 +85,6 @@ android {
         viewBinding = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.6.10"
-    }
 
     splits {
         abi {
@@ -96,7 +97,7 @@ android {
 
     testOptions {
         managedDevices {
-            devices {
+            allDevices {
                 register<ManagedVirtualDevice>("mvdApi35") {
                     device = "Pixel"
                     apiLevel = 35
@@ -110,6 +111,10 @@ android {
     packaging.resources {
         excludes += "/META-INF/AL2.0"
         excludes += "/META-INF/LGPL2.1"
+    }
+    dependenciesInfo {
+        includeInApk = true
+        includeInBundle = true
     }
 }
 
