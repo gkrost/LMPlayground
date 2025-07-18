@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.Eject
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,7 +46,8 @@ fun ConversationBar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
     onSelectModelPressed: () -> Unit = { },
     onUnloadModelPressed: () -> Unit = { },
-    onNavIconPressed: () -> Unit = { }
+    onNavIconPressed: () -> Unit = { },
+    onSharePressed: () -> Unit = { }
 ) {
     var functionalityNotAvailablePopupShown by remember { mutableStateOf(false) }
     if (functionalityNotAvailablePopupShown) {
@@ -125,6 +127,16 @@ fun ConversationBar(
                         .padding(horizontal = 12.dp, vertical = 16.dp)
                         .height(24.dp),
                     contentDescription = stringResource(id = R.string.info)
+                )
+                // Share icon
+                Icon(
+                    imageVector = Icons.Outlined.Share,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .clickable(onClick = onSharePressed)
+                        .padding(horizontal = 12.dp, vertical = 16.dp)
+                        .height(24.dp),
+                    contentDescription = stringResource(id = R.string.share)
                 )
             }
             else {

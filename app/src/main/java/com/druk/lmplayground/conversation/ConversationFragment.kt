@@ -1,6 +1,7 @@
 package com.druk.lmplayground.conversation
 
 import android.os.Bundle
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -87,6 +88,13 @@ class ConversationFragment : Fragment() {
                             },
                             onUnloadModelPressed = {
                                 viewModel.unloadModel()
+                            },
+                            onSharePressed = {
+                                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(Intent.EXTRA_TEXT, viewModel.getConversationText())
+                                }
+                                startActivity(Intent.createChooser(shareIntent, null))
                             }
                         )
                         if (models.isNotEmpty()) {

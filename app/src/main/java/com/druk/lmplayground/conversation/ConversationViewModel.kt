@@ -343,4 +343,12 @@ class ConversationViewModel(val app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun getConversationText(): String {
+        val sb = StringBuilder()
+        for (message in uiState.messages) {
+            sb.append(message.author).append(": ").append(message.content).append("\n")
+        }
+        return sb.toString().trimEnd()
+    }
+
 }
