@@ -5,8 +5,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    // you can also alias this in your TOML, but for now use the literal:
     id("org.jetbrains.kotlin.plugin.compose")
 }
+
 
 android {
     compileSdk = libs.versions.compileSdk.get().toInt()
@@ -16,8 +18,8 @@ android {
         applicationId = "com.druk.lmplayground"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1_01_01
-        versionName = "1.1.1"
+        versionCode = 1
+        versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
@@ -38,7 +40,19 @@ android {
     ndkVersion = "27.2.12479018"
 
     buildFeatures {
+        viewBinding = true
         compose = true
+    }
+
+    composeOptions {
+        // kotlinCompilerExtensionVersion = libs.versions.androidx.compose.compiler.version#.get()
+    }
+
+    kotlin {
+        compilerOptions {
+            // replace kotlinOptions.jvmTarget = "1.8"
+            jvmTarget.set(JvmTarget.JVM_1_8)
+        }
     }
 
     externalNativeBuild {
@@ -132,5 +146,10 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.fragment.ktx.v260)
     implementation(libs.androidx.navigation.ui.ktx.v260)
+
+    implementation(libs.androidx.compose.bom)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.materialWindow)
 }
 
