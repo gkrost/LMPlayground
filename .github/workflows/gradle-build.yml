@@ -1,0 +1,28 @@
+name: Gradle Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  ORG_GRADLE_PARALLEL: "true"
+  ORG_GRADLE_MAX_WORKERS: "2"
+  ORG_GRADLE_CONFIGURATION_CACHE: "true"
+  ORG_GRADLE_WARNING_MODE: "all"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/gradle-build-action@v3
+        with:
+          arguments: clean build --scan
+          config-cache-enabled: true
+          build-cache: true
