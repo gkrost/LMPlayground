@@ -1,9 +1,14 @@
 import com.android.build.api.dsl.ManagedVirtualDevice
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    // you can also alias this in your TOML, but for now use the literal:
+    id("org.jetbrains.kotlin.plugin.compose")
 }
+
 
 android {
     compileSdk = libs.versions.compileSdk.get().toInt()
@@ -13,8 +18,8 @@ android {
         applicationId = "com.druk.lmplayground"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1_01_01
-        versionName = "1.1.1"
+        versionCode = 1
+        versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
@@ -34,6 +39,22 @@ android {
 
     ndkVersion = "27.2.12479018"
 
+    buildFeatures {
+        viewBinding = true
+        compose = true
+    }
+
+    composeOptions {
+        // kotlinCompilerExtensionVersion = libs.versions.androidx.compose.compiler.version#.get()
+    }
+
+    kotlin {
+        compilerOptions {
+            // replace kotlinOptions.jvmTarget = "1.8"
+            jvmTarget.set(JvmTarget.JVM_1_8)
+        }
+    }
+
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
@@ -42,7 +63,6 @@ android {
     }
 
     signingConfigs {
-        // We use a bundled debug keystore, to allow debug builds from CI to be upgradable
         val userKeystore = File(System.getProperty("user.home"), ".android/keystore.jks")
         val localKeystore = rootProject.file("debug.keystore")
         val hasKeyInfo = userKeystore.exists()
@@ -62,8 +82,10 @@ android {
         getByName("release") {
             isMinifyEnabled = true
             signingConfig = signingConfigs.getByName("debug")
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 
@@ -77,6 +99,7 @@ android {
         viewBinding = true
     }
 
+
     splits {
         abi {
             isEnable = true
@@ -89,7 +112,7 @@ android {
     testOptions {
         managedDevices {
             allDevices {
-                maybeCreate<ManagedVirtualDevice>("mvdApi35").apply {
+                register<ManagedVirtualDevice>("mvdApi35") {
                     device = "Pixel"
                     apiLevel = 35
                     systemImageSource = "google"
@@ -99,54 +122,53 @@ android {
         }
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
-    }
-
     packaging.resources {
-        // Multiple dependency bring these files in. Exclude them to enable
-        // our test APK to build (has no effect on our AARs)
         excludes += "/META-INF/AL2.0"
         excludes += "/META-INF/LGPL2.1"
     }
+    dependenciesInfo {
+        includeInApk = true
+        includeInBundle = true
+    }
 }
 
+// Align Kotlin JVM target using compilerOptions DSL
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
+    }
+}
+
+// Dependencies for Material3, Compose3, and Navigation
+
 dependencies {
-    val composeBom = platform(libs.androidx.compose.bom)
-    implementation(composeBom)
-    androidTestImplementation(composeBom)
-
-    implementation(libs.kotlin.stdlib)
-    implementation(libs.kotlinx.coroutines.android)
-
-    implementation(libs.androidx.activity.compose)
-
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.compose.runtime.livedata)
-    implementation(libs.androidx.lifecycle.viewModelCompose)
-    implementation(libs.androidx.lifecycle.runtime.compose)
-    implementation(libs.androidx.navigation.fragment)
-    implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.google.android.material)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.fragment.ktx.v260)
+    implementation(libs.androidx.navigation.ui.ktx.v260)
 
-    implementation(libs.androidx.compose.foundation.layout)
+    // 1. Use the BOM the right way (platform(...) or enforcedPlatform(...))
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.bom)
+    implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.material.iconsExtended)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    implementation(libs.androidx.compose.ui.util)
-    implementation(libs.androidx.compose.ui.viewbinding)
-    implementation(libs.androidx.compose.ui.googlefonts)
+    implementation(libs.androidx.compose.materialWindow)
 
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    debugImplementation("androidx.compose.ui:ui-tooling")        // only needed in debug
+    implementation("androidx.compose.ui:ui-viewbinding")
+    implementation("androidx.compose.runtime:runtime-livedata")
 
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.core)
-    androidTestImplementation(libs.androidx.test.runner)
-    androidTestImplementation(libs.androidx.test.espresso.core)
-    androidTestImplementation(libs.androidx.test.rules)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.kotlinx.coroutines.test)
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    // Unit‑test support
+    testImplementation("junit:junit:4.13.2")
+
+    // Compose + AndroidX instrumentation test stack
+    androidTestImplementation(platform("androidx.compose:compose-bom:1.8.3")) // latest stable :contentReference[oaicite:0]{index=0}
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")            // provides createAndroidComposeRule
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    // Manifest stub so Compose previews & test‑manifest resolve correctly
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

@@ -1,4 +1,5 @@
-val snapshotVersion : String? = System.getenv("COMPOSE_SNAPSHOT_ID")
+// Pull COMPOSE_SNAPSHOT_ID from the environment (if set)
+val snapshotVersion: String? = System.getenv("COMPOSE_SNAPSHOT_ID")
 
 pluginManagement {
     repositories {
@@ -7,18 +8,23 @@ pluginManagement {
         mavenCentral()
     }
 }
+
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    versionCatalogs {
+        create("libs") {
+            // from(files("gradle/libs.versions.toml"))
+        }
+    }
+
     repositories {
         snapshotVersion?.let {
-            println("https://androidx.dev/snapshots/builds/$it/artifacts/repository/") 
+            println("Using Compose snapshot repo: https://androidx.dev/snapshots/builds/$it/artifacts/repository/")
             maven { url = uri("https://androidx.dev/snapshots/builds/$it/artifacts/repository/") }
         }
-
         google()
         mavenCentral()
     }
 }
+
 rootProject.name = "LMPlayground"
 include(":app")
-
