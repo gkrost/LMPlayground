@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.Eject
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,7 +48,8 @@ fun ConversationBar(
     onSelectModelPressed: () -> Unit = { },
     onUnloadModelPressed: () -> Unit = { },
     onNavIconPressed: () -> Unit = { },
-    onSharePressed: () -> Unit = { }
+    onSharePressed: () -> Unit = { },
+    onDownloadPressed: () -> Unit = { }
 ) {
     var functionalityNotAvailablePopupShown by remember { mutableStateOf(false) }
     if (functionalityNotAvailablePopupShown) {
@@ -137,6 +139,16 @@ fun ConversationBar(
                         .padding(horizontal = 12.dp, vertical = 16.dp)
                         .height(24.dp),
                     contentDescription = stringResource(id = R.string.share)
+                )
+                // Download icon
+                Icon(
+                    imageVector = Icons.Outlined.FileDownload,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .clickable(onClick = onDownloadPressed)
+                        .padding(horizontal = 12.dp, vertical = 16.dp)
+                        .height(24.dp),
+                    contentDescription = stringResource(id = R.string.download)
                 )
             }
             else {

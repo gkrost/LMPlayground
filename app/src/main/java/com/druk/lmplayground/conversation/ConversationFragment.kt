@@ -2,6 +2,7 @@ package com.druk.lmplayground.conversation
 
 import android.os.Bundle
 import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,6 +48,16 @@ import kotlinx.coroutines.launch
 class ConversationFragment : Fragment() {
 
     private val viewModel: ConversationViewModel by viewModels()
+    private val createDocumentLauncher = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri?.let {
+            val json = viewModel.getConversationJson()
+            requireContext().contentResolver.openOutputStream(it)?.use { stream ->
+                stream.write(json.toByteArray())
+            }
+        }
+    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreateView(
@@ -95,6 +106,10 @@ class ConversationFragment : Fragment() {
                                     putExtra(Intent.EXTRA_TEXT, viewModel.getConversationText())
                                 }
                                 startActivity(Intent.createChooser(shareIntent, null))
+                            },
+                            onDownloadPressed = {
+                                val fileName = "conversation-${System.currentTimeMillis()}.json"
+                                createDocumentLauncher.launch(fileName)
                             }
                         )
                         if (models.isNotEmpty()) {
