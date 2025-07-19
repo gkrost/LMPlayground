@@ -108,7 +108,8 @@ class ConversationFragment : Fragment() {
                                 startActivity(Intent.createChooser(shareIntent, null))
                             },
                             onDownloadPressed = {
-                                val fileName = "conversation-${System.currentTimeMillis()}.json"
+                                val timestamp = java.text.SimpleDateFormat("yyyyMMdd-HHmmss").format(java.util.Date())
+                                val fileName = "conversation-$timestamp.json"
                                 createDocumentLauncher.launch(fileName)
                             }
                         )
