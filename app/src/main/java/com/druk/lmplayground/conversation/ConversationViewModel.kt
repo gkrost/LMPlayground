@@ -351,4 +351,15 @@ class ConversationViewModel(val app: Application) : AndroidViewModel(app) {
         return sb.toString().trimEnd()
     }
 
+    fun getConversationJson(): String {
+        val jsonArray = JSONArray()
+        for (message in uiState.messages) {
+            val obj = JSONObject()
+            obj.put("author", message.author)
+            obj.put("content", message.content)
+            jsonArray.put(obj)
+        }
+        return jsonArray.toString(2)
+    }
+
 }
