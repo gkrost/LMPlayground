@@ -60,7 +60,9 @@ fun ChatItemBubble(
                 primary = isUserMe
             )
 
-            SelectionContainer {
+            SelectionContainer(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
                 Text(
                     text = styledMessage,
                     style = MaterialTheme.typography.bodyLarge.copy(color = LocalContentColor.current)
